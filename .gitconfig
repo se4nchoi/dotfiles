@@ -1,0 +1,31 @@
+# --- PUBLIC DOTFILES GITCONFIG ---
+
+[include]
+        path = ~/.gitconfig-private
+
+[alias]
+        graph = log --all --graph --decorate
+        cm = commit -m
+        st = status
+        sw = switch
+        cb = switch -c
+
+        recom = commit --amend --no-edit
+        uncom = reset --soft HEAD~1
+
+        up = pull --rebase
+        editmsg = commit --amend
+
+        sync = !"git fetch origin && git pull --rebase"
+        pub = !"git push -u origin $(git branch --show-current)"
+        inc = !"git fetch && git log ..origin/main --oneline"
+	
+	# Uncomment after installing local LLM script
+	# ai-msg = "!~/.local/bin/git-ai-msg"
+	# ai-commit = "!f() { git commit -e -m \"$(git ai-msg \"$@\")\"; }; f"
+
+[credential "https://github.com"]
+        helper = !/usr/bin/gh auth git-credential
+[credential "https://github.com"]
+        helper = !/usr/bin/gh auth git-credential
+
