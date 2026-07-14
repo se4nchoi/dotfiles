@@ -10,8 +10,8 @@
         sw = switch
         cb = switch -c
 
-        recom = commit --amend --no-edit
-        uncom = reset --soft HEAD~1
+        rcom = commit --amend --no-edit
+        ucom = reset --soft HEAD~1
 
         up = pull --rebase
         editmsg = commit --amend
