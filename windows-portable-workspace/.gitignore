@@ -1,0 +1,4 @@
+restore-workspace.local.bat
+
+# Taskbar snapshots contain profile-specific shortcuts and registry data.
+config/taskbar*/
