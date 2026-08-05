@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Define paths
-DOTFILES_DIR="$HOME/dotfiles"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$SCRIPT_DIR"
 PRIVATE_CONFIG="$HOME/.gitconfig-private"
 TARGET_CONFIG="$HOME/.gitconfig"
 BACKUP_CONFIG="$HOME/.gitconfig.bak"

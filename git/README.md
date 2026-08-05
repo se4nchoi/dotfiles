@@ -96,8 +96,8 @@ The shared config includes helpful aliases such as:
 - `st`
 - `sw`
 - `cb`
-- `recom`
-- `uncom`
+- `rcom`
+- `ucom`
 - `up`
 - `sync`
 - `pub`
