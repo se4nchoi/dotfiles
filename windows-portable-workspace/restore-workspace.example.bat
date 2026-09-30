@@ -13,6 +13,11 @@ set "TASKBAR_SNAPSHOT_NAME=taskbar-v2"
 set "WORKSPACE_SHORTCUT_NAME=Workspace.lnk"
 set "WORKSPACE_STARTMENU_NAME=Workspace.lnk"
 
+:: Brave profile folder, matching --user-data-dir in Brave.lnk. When set,
+:: default-browser links open in this profile instead of a blank one.
+set "BRAVE_USER_DATA_DIR=%PROGRAMS_DIR%\BraveBrowser\BraveData"
+:: set "BRAVE_EXE=%PROGRAMS_DIR%\BraveBrowser\brave.exe"
+
 :: Optional overrides for developer CLIs (defaults shown).
 :: set "NODE_DIR=%PROGRAMS_DIR%\nodejs"
 :: set "CODEX_DIR=%PROGRAMS_DIR%\codex\bin"

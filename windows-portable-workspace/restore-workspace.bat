@@ -12,6 +12,10 @@ title %WORKSPACE_TITLE%
 if "%~1"=="" goto :RESTORE
 if /i "%~1"=="restore" goto :RESTORE
 if /i "%~1"=="capture-taskbar" goto :CAPTURE_TASKBAR
+if /i "%~1"=="fix-brave" (
+    call :FIX_BRAVE_HANDLERS
+    exit /b 0
+)
 if /i "%~1"=="help" goto :USAGE
 if /i "%~1"=="--help" goto :USAGE
 if /i "%~1"=="/?" goto :USAGE
@@ -87,6 +91,7 @@ set "CODE_SHORTCUT=%PROGRAMS_DIR%\Code.lnk"
 set "PWSH_SHORTCUT=%PROGRAMS_DIR%\pwsh.lnk"
 set "WORKSPACE_SHORTCUT=%PROGRAMS_DIR%\%WORKSPACE_SHORTCUT_NAME%"
 set "DITTO_EXE=%PROGRAMS_DIR%\Ditto\Ditto.exe"
+if not defined BRAVE_EXE set "BRAVE_EXE=%PROGRAMS_DIR%\BraveBrowser\brave.exe"
 
 exit /b 0
 
@@ -347,6 +352,54 @@ if exist "%CODE_SHORTCUT%" (
     echo [WARN] VS Code shortcut was not found.
 )
 
+if defined BRAVE_USER_DATA_DIR (
+    rem Brave registers its link handlers on startup; give it a moment first.
+    timeout /t 3 /nobreak >nul
+    call :FIX_BRAVE_HANDLERS
+)
+
+exit /b 0
+
+
+:: Brave registers http/https/.html handlers without --user-data-dir, so
+:: links opened from other apps start a blank profile in the reset profile.
+:: Rewrite each registered open command to use BRAVE_USER_DATA_DIR. Only the
+:: command changes; the protected default-app choice (UserChoice) is untouched.
+:FIX_BRAVE_HANDLERS
+
+if not defined BRAVE_USER_DATA_DIR (
+    echo [WARN] BRAVE_USER_DATA_DIR is not configured; link handlers not fixed.
+    exit /b 0
+)
+
+if not exist "%BRAVE_EXE%" (
+    echo [WARN] Brave executable was not found:
+    echo        "%BRAVE_EXE%"
+    exit /b 0
+)
+
+set "BRAVE_FIXED=0"
+
+for /f "delims=" %%K in ('reg query "HKCU\Software\Classes" /k /f "Brave" 2^>nul ^| findstr /b /i "HKEY_"') do (
+    reg query "%%K\shell\open\command" >nul 2>&1
+    if not errorlevel 1 (
+        reg add "%%K\shell\open\command" /ve /t REG_SZ /d "\"%BRAVE_EXE%\" --user-data-dir=\"%BRAVE_USER_DATA_DIR%\" --single-argument %%1" /f >nul 2>&1
+        set "BRAVE_FIXED=1"
+    )
+)
+
+for /f "delims=" %%K in ('reg query "HKCU\Software\Clients\StartMenuInternet" /k /f "Brave" 2^>nul ^| findstr /b /i "HKEY_"') do (
+    reg add "%%K\shell\open\command" /ve /t REG_SZ /d "\"%BRAVE_EXE%\" --user-data-dir=\"%BRAVE_USER_DATA_DIR%\"" /f >nul 2>&1
+)
+
+if "%BRAVE_FIXED%"=="1" (
+    echo [OK] Brave link handlers use the persistent profile.
+) else (
+    echo [WARN] Brave link handlers are not registered yet.
+    echo        After setting Brave as the default browser, run:
+    echo        "%~f0" fix-brave
+)
+
 exit /b 0
 
 
@@ -464,6 +517,7 @@ echo Usage:
 echo   %~nx0                 Restore the configured workspace
 echo   %~nx0 restore         Restore the configured workspace
 echo   %~nx0 capture-taskbar Capture the current Windows 10 taskbar
+echo   %~nx0 fix-brave       Point Brave's default-browser handlers at BRAVE_USER_DATA_DIR
 echo   %~nx0 help            Show this help
 exit /b 0
 

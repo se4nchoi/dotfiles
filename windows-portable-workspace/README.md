@@ -89,6 +89,18 @@ The local configuration is intentionally ignored by Git.
 To move existing logins, copy `%USERPROFILE%\.codex` to `.codex-home` and
 `%USERPROFILE%\.claude` plus `%USERPROFILE%\.claude.json` into `.claude-home`.
 
+## Brave as the default browser
+
+`Brave.lnk` opens Brave with `--user-data-dir`, but the handlers Brave
+registers for http, https, and `.html` do not include it, so links opened from
+other apps start a blank profile. With `BRAVE_USER_DATA_DIR` set, the restore
+rewrites those handlers to use the persistent profile. If Brave was not
+registered yet during restore, set it as the default browser and run:
+
+```bat
+restore-workspace.bat fix-brave
+```
+
 ## Taskbar capture
 
 Taskbar restore is specific to the Windows 10 profile and application paths
@@ -116,6 +128,7 @@ registry data are applied. Open File Explorer windows may close.
 restore-workspace.bat
 restore-workspace.bat restore
 restore-workspace.bat capture-taskbar
+restore-workspace.bat fix-brave
 restore-workspace.bat help
 ```
 
