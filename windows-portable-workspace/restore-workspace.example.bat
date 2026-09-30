@@ -13,6 +13,13 @@ set "TASKBAR_SNAPSHOT_NAME=taskbar-v2"
 set "WORKSPACE_SHORTCUT_NAME=Workspace.lnk"
 set "WORKSPACE_STARTMENU_NAME=Workspace.lnk"
 
+:: Optional overrides for developer CLIs (defaults shown).
+:: set "NODE_DIR=%PROGRAMS_DIR%\nodejs"
+:: set "CODEX_DIR=%PROGRAMS_DIR%\codex\bin"
+:: set "CLAUDE_DIR=%PROGRAMS_DIR%\claude\bin"
+:: set "CODEX_HOME_DIR=%WORKSPACE_ROOT%\.codex-home"
+:: set "CLAUDE_HOME_DIR=%WORKSPACE_ROOT%\.claude-home"
+
 set "GIT_USER_NAME=Your Name"
 set "GIT_USER_EMAIL=you@example.com"
 

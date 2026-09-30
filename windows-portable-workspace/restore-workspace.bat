@@ -66,6 +66,11 @@ if not defined WORKSPACE_ROOT (
 )
 
 if not defined PROGRAMS_DIR set "PROGRAMS_DIR=%WORKSPACE_ROOT%\programs"
+if not defined NODE_DIR set "NODE_DIR=%PROGRAMS_DIR%\nodejs"
+if not defined CODEX_DIR set "CODEX_DIR=%PROGRAMS_DIR%\codex\bin"
+if not defined CLAUDE_DIR set "CLAUDE_DIR=%PROGRAMS_DIR%\claude\bin"
+if not defined CODEX_HOME_DIR set "CODEX_HOME_DIR=%WORKSPACE_ROOT%\.codex-home"
+if not defined CLAUDE_HOME_DIR set "CLAUDE_HOME_DIR=%WORKSPACE_ROOT%\.claude-home"
 
 set "PWSH_DIR=%PROGRAMS_DIR%\PowerShell7"
 set "PWSH_APP_PATH=HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths\pwsh.exe"
@@ -177,7 +182,7 @@ if exist "%PWSH_DIR%\pwsh.exe" (
     echo        "%PWSH_DIR%\pwsh.exe"
 )
 
-set "PORTABLE_PATHS=%PWSH_DIR%;%PROGRAMS_DIR%\Git\bin;%PROGRAMS_DIR%\Microsoft VS Code\bin;%PROGRAMS_DIR%\GitHub CLI\bin;%PROGRAMS_DIR%\Python314;%PROGRAMS_DIR%\Python314\Scripts;%PROGRAMS_DIR%\uv"
+set "PORTABLE_PATHS=%PWSH_DIR%;%PROGRAMS_DIR%\Git\bin;%PROGRAMS_DIR%\Microsoft VS Code\bin;%PROGRAMS_DIR%\GitHub CLI\bin;%PROGRAMS_DIR%\Python314;%PROGRAMS_DIR%\Python314\Scripts;%PROGRAMS_DIR%\uv;%NODE_DIR%;%CODEX_DIR%;%CLAUDE_DIR%"
 set "USER_PATH=%PORTABLE_PATHS%;%LOCALAPPDATA%\Microsoft\WindowsApps"
 
 :: Write the user PATH directly to avoid SETX's historical truncation behavior.
@@ -195,12 +200,46 @@ call :SET_USER_ENV "PYTHONUSERBASE" "%PROGRAMS_DIR%\Python314"
 call :SET_USER_ENV "UV_CACHE_DIR" "%PROGRAMS_DIR%\uv\cache"
 call :SET_USER_ENV "UV_TOOL_DIR" "%PROGRAMS_DIR%\uv\tools"
 
+:: npm global installs land beside node.exe, which is already on PATH.
+call :SET_USER_ENV "NPM_CONFIG_PREFIX" "%NODE_DIR%"
+call :SET_USER_ENV "NPM_CONFIG_CACHE" "%NODE_DIR%\npm-cache"
+
+:: Keep Codex and Claude Code auth, sessions, and settings off the wiped
+:: profile. Claude's self-updater installs into %USERPROFILE%\.local, so it
+:: is disabled; use update-claude.ps1 to refresh the portable binary.
+call :SET_USER_ENV "CODEX_HOME" "%CODEX_HOME_DIR%"
+call :SET_USER_ENV "CODEX_INSTALL_DIR" "%CODEX_DIR%"
+call :SET_USER_ENV "CLAUDE_CONFIG_DIR" "%CLAUDE_HOME_DIR%"
+call :SET_USER_ENV "DISABLE_AUTOUPDATER" "1"
+
 set "HOME=%WORKSPACE_ROOT%"
 set "PYTHONUSERBASE=%PROGRAMS_DIR%\Python314"
 set "UV_CACHE_DIR=%PROGRAMS_DIR%\uv\cache"
 set "UV_TOOL_DIR=%PROGRAMS_DIR%\uv\tools"
+set "NPM_CONFIG_PREFIX=%NODE_DIR%"
+set "NPM_CONFIG_CACHE=%NODE_DIR%\npm-cache"
+set "CODEX_HOME=%CODEX_HOME_DIR%"
+set "CODEX_INSTALL_DIR=%CODEX_DIR%"
+set "CLAUDE_CONFIG_DIR=%CLAUDE_HOME_DIR%"
+set "DISABLE_AUTOUPDATER=1"
 
 echo [OK] Portable storage variables loaded.
+
+call :CHECK_TOOL "Node.js" "%NODE_DIR%\node.exe"
+call :CHECK_TOOL "Codex CLI" "%CODEX_DIR%\codex.exe"
+call :CHECK_TOOL "Claude Code" "%CLAUDE_DIR%\claude.exe"
+exit /b 0
+
+
+:CHECK_TOOL
+
+if exist "%~2" (
+    echo [OK] %~1 available.
+) else (
+    echo [WARN] %~1 was not found:
+    echo        "%~2"
+)
+
 exit /b 0
 
 

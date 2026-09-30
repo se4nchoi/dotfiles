@@ -8,7 +8,9 @@ It can:
 
 - enable Windows dark mode;
 - set a configured Windows time zone;
-- restore user-level `PATH` and portable Python/uv environment variables;
+- restore user-level `PATH` and portable Python/uv/npm environment variables;
+- keep Node.js, Codex CLI, and Claude Code on the persistent drive, with
+  their config and auth in `.codex-home` and `.claude-home`;
 - register portable application shortcuts in the Start Menu;
 - capture and restore Windows 10 taskbar pins;
 - launch Ditto, Brave, VS Code, and PowerShell 7;
@@ -26,15 +28,20 @@ The expected default layout is:
 
 ```text
 E:\portable-workspace\
+├── .claude-home\         CLAUDE_CONFIG_DIR
+├── .codex-home\          CODEX_HOME
 ├── config\
 │   └── taskbar-v2\       created by capture-taskbar
 └── programs\
     ├── Brave.lnk
+    ├── claude\bin\claude.exe
     ├── Code.lnk
+    ├── codex\bin\codex.exe
     ├── Ditto\Ditto.exe
     ├── Git\bin\
     ├── GitHub CLI\bin\
     ├── Microsoft VS Code\bin\
+    ├── nodejs\           npm globals and npm-cache live here too
     ├── PowerShell7\pwsh.exe
     ├── Python314\
     ├── pwsh.lnk
@@ -67,6 +74,20 @@ as `Workspace.lnk`.
    ```
 
 The local configuration is intentionally ignored by Git.
+
+## Node.js, Codex, and Claude Code
+
+- **Node.js**: copy an installed `C:\Program Files\nodejs` (or extract the
+  zip distribution) to `programs\nodejs`. `NPM_CONFIG_PREFIX` points there, so
+  `npm install -g` puts commands beside `node.exe` on `PATH`.
+- **Codex**: place the standalone `codex.exe` in `programs\codex\bin`.
+- **Claude Code**: run `update-claude.ps1 -WorkspaceRoot E:\portable-workspace`.
+  It installs or upgrades the winget package and copies `claude.exe` into
+  `programs\claude\bin`. Claude's own auto-updater is disabled because it
+  installs into the reset profile; rerun the script to update.
+
+To move existing logins, copy `%USERPROFILE%\.codex` to `.codex-home` and
+`%USERPROFILE%\.claude` plus `%USERPROFILE%\.claude.json` into `.claude-home`.
 
 ## Taskbar capture
 
